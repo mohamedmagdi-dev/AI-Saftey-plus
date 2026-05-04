@@ -1,0 +1,61 @@
+part of 'alert_cubit.dart';
+
+abstract class AlertState extends Equatable {
+  const AlertState();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class AlertInitial extends AlertState {}
+
+class AlertLoading extends AlertState {}
+
+class AlertLoaded extends AlertState {
+  final List<AlertEntity> alerts;
+  final String? filter;
+
+  const AlertLoaded({required this.alerts, this.filter});
+
+  AlertLoaded copyWith({
+    List<AlertEntity>? alerts,
+    String? filter,
+  }) {
+    return AlertLoaded(
+      alerts: alerts ?? this.alerts,
+      filter: filter ?? this.filter,
+    );
+  }
+
+  @override
+  List<Object?> get props => [alerts, filter];
+}
+
+class AlertHistoryLoaded extends AlertState {
+  final List<AlertEntity> alerts;
+  final String? filter;
+
+  const AlertHistoryLoaded({required this.alerts, this.filter});
+
+  AlertHistoryLoaded copyWith({
+    List<AlertEntity>? alerts,
+    String? filter,
+  }) {
+    return AlertHistoryLoaded(
+      alerts: alerts ?? this.alerts,
+      filter: filter ?? this.filter,
+    );
+  }
+
+  @override
+  List<Object?> get props => [alerts, filter];
+}
+
+class AlertError extends AlertState {
+  final String message;
+
+  const AlertError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
