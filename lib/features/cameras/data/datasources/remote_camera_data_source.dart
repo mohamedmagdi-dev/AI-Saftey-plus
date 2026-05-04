@@ -8,6 +8,7 @@ abstract class RemoteCameraDataSource {
   Future<List<CameraModel>> getCameras();
   Future<CameraModel> getCameraById(String id);
   Future<String> getStreamUrl(String cameraId);
+  Future<String> getCameraSnapshot(String cameraId);
 }
 
 class RemoteCameraDataSourceImpl implements RemoteCameraDataSource {
@@ -55,5 +56,34 @@ class RemoteCameraDataSourceImpl implements RemoteCameraDataSource {
   Future<String> getStreamUrl(String cameraId) async {
     final base = AppConstants.apiBaseUrl.replaceAll(RegExp(r'/$'), '');
     return '$base/stream/$cameraId';
+  }
+
+  /// Get camera snapshot from API (see OpenAPI `/cameras/{camera_id}/snapshot`)
+  @override
+  Future<String> getCameraSnapshot(String cameraId) async {
+    try {
+      final response = await dio.get<dynamic>('/cameras/$cameraId/snapshot');
+      
+      // If the response contains the snapshot URL in JSON
+      if (response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        final snapshotUrl = data['snapshot_url'] as String?;
+        if (snapshotUrl != null && snapshotUrl.isNotEmpty) {
+          return snapshotUrl;
+        }
+      }
+      
+      // If the response is the image data directly, return a data URL
+      if (response.data is List<int>) {
+        final bytes = response.data as List<int>;
+        return 'data:image/jpeg;base64,${bytes.map((e) => e.toRadixString(16).padLeft(2, '0')).join()}';
+      }
+      
+      // Fallback: construct snapshot URL from base URL
+      final base = AppConstants.apiBaseUrl.replaceAll(RegExp(r'/$'), '');
+      return '$base/cameras/$cameraId/snapshot';
+    } on DioException catch (e) {
+      throw ApiException(messageFromDioException(e), statusCode: e.response?.statusCode);
+    }
   }
 }

@@ -4,6 +4,7 @@ import 'config/di/injection_container.dart';
 import 'config/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/cubit/navigation_cubit.dart';
+import 'core/services/notification_service.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/cameras/presentation/cubit/camera_cubit.dart';
 import 'features/alerts/presentation/cubit/alert_cubit.dart';
@@ -12,6 +13,11 @@ import 'features/reports/presentation/cubit/reports_cubit.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupDependencyInjection();
+  
+  // Initialize notification service
+  await NotificationService().initialize();
+  await NotificationService().requestPermissions();
+  
   runApp(const MyApp());
 }
 

@@ -16,4 +16,7 @@ class CameraRepositoryImpl implements CameraRepository {
 
   @override
   Future<String> getStreamUrl(String cameraId) => _remote.getStreamUrl(cameraId);
+
+  @override
+  Future<String> getCameraSnapshot(String cameraId) => _remote.getCameraSnapshot(cameraId);
 }

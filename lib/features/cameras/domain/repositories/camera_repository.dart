@@ -4,4 +4,5 @@ abstract class CameraRepository {
   Future<List<CameraEntity>> getCameras();
   Future<CameraEntity> getCameraById(String id);
   Future<String> getStreamUrl(String cameraId);
+  Future<String> getCameraSnapshot(String cameraId);
 }

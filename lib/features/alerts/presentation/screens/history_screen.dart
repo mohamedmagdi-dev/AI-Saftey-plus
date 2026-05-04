@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/glass_container.dart';
 import '../../../../core/widgets/glass_bottom_nav.dart';
 import '../../../../core/widgets/alert_tile.dart';
+import '../../../../core/widgets/alert_detail_dialog.dart';
 import '../../../../core/widgets/status_indicator.dart';
+import '../../../../core/widgets/shimmer_widgets.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/cubit/navigation_cubit.dart';
 import '../../../../core/utils/navigation_helper.dart';
@@ -263,10 +265,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
     double horizontalPadding,
   ) {
     if (alertState is AlertLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentCyan),
-        ),
+      return ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        itemCount: 5, // Show 5 shimmer items
+        itemBuilder: (context, index) {
+          return const AlertTileShimmer();
+        },
       );
     }
 
@@ -371,7 +375,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
             timestamp: alert.timestamp,
             severity: _mapAlertSeverityToStatusType(alert.severity),
             onTap: () {
-              // TODO: Navigate to alert details
+              showAlertDetailDialog(
+                context: context,
+                title: alert.title,
+                description: alert.description,
+                imageUrl: alert.imageUrl,
+                timestamp: alert.timestamp,
+                severity: alert.severity.name,
+              );
             },
           ),
         );

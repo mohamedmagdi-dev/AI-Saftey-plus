@@ -8,6 +8,10 @@ class CameraModel extends CameraEntity {
     super.isOnline,
     super.thumbnailUrl,
     super.streamUrl,
+    super.snapshotUrl,
+    super.lastSnapshotTime,
+    super.cameraType,
+    super.hasAI,
   });
 
   factory CameraModel.fromJson(Map<String, dynamic> json) {
@@ -21,6 +25,12 @@ class CameraModel extends CameraEntity {
       isOnline: status == 'active',
       thumbnailUrl: null,
       streamUrl: _streamSourceFromUrl(rawUrl),
+      snapshotUrl: json['snapshot_url'] as String? ?? json['snapshotUrl'] as String?,
+      lastSnapshotTime: json['last_snapshot_time'] != null 
+          ? DateTime.tryParse(json['last_snapshot_time'] as String)
+          : null,
+      cameraType: cameraType,
+      hasAI: json['has_ai'] as bool? ?? false,
     );
   }
 
@@ -58,6 +68,10 @@ class CameraModel extends CameraEntity {
       'isOnline': isOnline,
       'thumbnailUrl': thumbnailUrl,
       'streamUrl': streamUrl,
+      'snapshotUrl': snapshotUrl,
+      'last_snapshot_time': lastSnapshotTime?.toIso8601String(),
+      'camera_type': cameraType,
+      'has_ai': hasAI,
     };
   }
 }

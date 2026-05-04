@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/glass_bottom_nav.dart';
 import '../../../../core/widgets/camera_card.dart';
+import '../../../../core/widgets/shimmer_widgets.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/cubit/navigation_cubit.dart';
 import '../../../../core/utils/navigation_helper.dart';
@@ -182,10 +183,12 @@ class _CameraListScreenState extends State<CameraListScreen> {
     double horizontalPadding,
   ) {
     if (cameraState is CameraLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentCyan),
-        ),
+      return ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        itemCount: 4, // Show 4 shimmer items
+        itemBuilder: (context, index) {
+          return const CameraTileShimmer();
+        },
       );
     }
 
@@ -250,7 +253,7 @@ class _CameraListScreenState extends State<CameraListScreen> {
             cameraName: camera.name,
             location: camera.location,
             isOnline: camera.isOnline,
-            thumbnailUrl: camera.thumbnailUrl,
+            thumbnailUrl: camera.snapshotUrl ?? camera.thumbnailUrl,
             onTap: () {
               NavigationHelper.navigateToLiveStream(
                 context,

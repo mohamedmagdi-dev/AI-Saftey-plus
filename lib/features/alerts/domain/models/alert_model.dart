@@ -1,4 +1,5 @@
 import '../entities/alert_entity.dart';
+import '../../../../core/constants/app_constants.dart';
 
 class AlertModel extends AlertEntity {
   const AlertModel({
@@ -9,6 +10,9 @@ class AlertModel extends AlertEntity {
     required super.severity,
     super.cameraId,
     super.location,
+    super.imageUrl,
+    super.isRead,
+    super.alertType,
   });
 
   factory AlertModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,9 @@ class AlertModel extends AlertEntity {
       severity: _severityFromString((json['severity'] as String?) ?? 'medium'),
       cameraId: json['camera_id'] as String? ?? json['cameraId'] as String?,
       location: json['location'] as String?,
+      imageUrl: _buildImageUrl(json['snapshot_url'] as String? ?? json['image_url'] as String? ?? json['imageUrl'] as String?),
+      isRead: json['is_read'] as bool? ?? false,
+      alertType: json['alert_type'] as String?,
     );
   }
 
@@ -46,6 +53,17 @@ class AlertModel extends AlertEntity {
     }
     if (value is DateTime) return value;
     return DateTime.now();
+  }
+
+  static String? _buildImageUrl(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) return null;
+    
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http')) return imagePath;
+    
+    // Construct full URL from relative path
+    final baseUrl = AppConstants.apiBaseUrl.replaceAll(RegExp(r'/$'), '');
+    return '$baseUrl$imagePath';
   }
 
   static AlertSeverity _severityFromString(String severity) {
@@ -72,6 +90,9 @@ class AlertModel extends AlertEntity {
       'severity': severity.name,
       'cameraId': cameraId,
       'location': location,
+      'imageUrl': imageUrl,
+      'is_read': isRead,
+      'alert_type': alertType,
     };
   }
 }

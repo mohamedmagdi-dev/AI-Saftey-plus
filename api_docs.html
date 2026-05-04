@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Surveillance System — API Reference</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --red: #ff5c5c;
+      --orange: #ff9f43;
+      --green: #1dd1a1;
+      --blue: #54a0ff;
+      --yellow: #ffd32a;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --tag-get: #1a3a4a;
+      --tag-get-text: #54a0ff;
+      --tag-post: #1a3a25;
+      --tag-post-text: #1dd1a1;
+      --tag-put: #3a2e1a;
+      --tag-put-text: #ff9f43;
+      --tag-delete: #3a1a1a;
+      --tag-delete-text: #ff5c5c;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ─── TOP HEADER ─── */
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    header h1 span.logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      font-size: 18px;
+    }
+    header p {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 13px;
+    }
+    .header-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .badge-blue { background: rgba(84,160,255,0.1); color: var(--blue); border-color: rgba(84,160,255,0.3); }
+    .badge-green { background: rgba(29,209,161,0.1); color: var(--green); border-color: rgba(29,209,161,0.3); }
+    .badge-purple { background: rgba(108,99,255,0.1); color: var(--accent); border-color: rgba(108,99,255,0.3); }
+
+    /* ─── LAYOUT ─── */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 100px);
+    }
+
+    /* ─── SIDEBAR ─── */
+    nav {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 100px;
+      height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+    nav::-webkit-scrollbar { width: 4px; }
+    nav::-webkit-scrollbar-track { background: transparent; }
+    nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .nav-section {
+      padding: 6px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+    nav a {
+      display: block;
+      padding: 8px 20px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    nav a:hover {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+    nav a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(108,99,255,0.08);
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    main {
+      flex: 1;
+      padding: 32px 40px;
+      max-width: 960px;
+    }
+
+    /* ─── AUTH NOTICE ─── */
+    .auth-notice {
+      background: rgba(108,99,255,0.08);
+      border: 1px solid rgba(108,99,255,0.3);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 13px;
+    }
+    .auth-notice strong { color: var(--accent); }
+    .auth-notice code {
+      background: rgba(255,255,255,0.07);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--orange);
+    }
+
+    /* ─── SECTION TITLE ─── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 36px 0 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .section-icon {
+      font-size: 20px;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* ─── ENDPOINT CARD ─── */
+    .endpoint {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .endpoint:hover { border-color: var(--accent); }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .method {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      min-width: 60px;
+    }
+    .method-GET    { background: var(--tag-get);    color: var(--tag-get-text); }
+    .method-POST   { background: var(--tag-post);   color: var(--tag-post-text); }
+    .method-PUT    { background: var(--tag-put);    color: var(--tag-put-text); }
+    .method-DELETE { background: var(--tag-delete); color: var(--tag-delete-text); }
+
+    .endpoint-path {
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 13px;
+      color: #fff;
+      font-weight: 600;
+      flex: 1;
+    }
+    .endpoint-desc {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .chevron {
+      color: var(--muted);
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+    .endpoint-body {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border);
+    }
+    .endpoint-body.open { display: block; }
+    .chevron.open { transform: rotate(90deg); }
+
+    /* ─── ENDPOINT BODY CONTENT ─── */
+    .body-section {
+      margin-top: 14px;
+    }
+    .body-section h4 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-weight: 600;
+      padding: 7px 12px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 7px 12px;
+      border-top: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .param-name {
+      font-family: 'Consolas', 'Fira Code', monospace;
+      color: var(--orange);
+      font-size: 12px;
+    }
+    .param-type {
+      font-family: 'Consolas', 'Fira Code', monospace;
+      color: var(--blue);
+      font-size: 11px;
+    }
+    .param-required {
+      color: var(--red);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .param-optional {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    pre {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .json-key    { color: #7dc4ff; }
+    .json-string { color: #a8ff78; }
+    .json-number { color: #ffcf6e; }
+    .json-bool   { color: var(--red); }
+    .json-null   { color: var(--muted); }
+
+    .auth-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .auth-required { background: rgba(255,92,92,0.15); color: var(--red); }
+    .auth-admin    { background: rgba(253,203,110,0.15); color: var(--yellow); }
+    .auth-optional { background: rgba(135,195,255,0.1); color: var(--muted); }
+    .auth-public   { background: rgba(29,209,161,0.12); color: var(--green); }
+
+    /* ─── RESPONSE EXAMPLES ─── */
+    .response-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .response-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+    .status-200 { color: var(--green); font-weight: 700; }
+    .status-400 { color: var(--orange); font-weight: 700; }
+    .status-401 { color: var(--red); font-weight: 700; }
+    .response-header span { color: var(--muted); }
+    .response-body {
+      padding: 12px 14px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* ─── SEARCH BOX ─── */
+    .search-wrap {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .search-box {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+    }
+    .search-box::placeholder { color: var(--muted); }
+    .search-box:focus { border-color: var(--accent); }
+
+    /* ─── BASE URL BOX ─── */
+    .base-url-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 14px;
+      color: var(--green);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .base-url-box span { color: var(--muted); font-size: 11px; font-family: sans-serif; }
+
+    /* ─── COPY BUTTON ─── */
+    .copy-btn {
+      background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.3);
+      color: var(--accent);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { background: rgba(108,99,255,0.3); }
+
+    /* ─── ALERT TYPES GRID ─── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      color: var(--orange);
+    }
+
+    /* ─── DIVIDER ─── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 768px) {
+      nav { display: none; }
+      main { padding: 20px; }
+      header { padding: 16px 20px; }
+      .endpoint-header { flex-wrap: wrap; }
+      .endpoint-path { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <h1>
+    <span class="logo">🛡</span>
+    AI Surveillance System — API Reference
+  </h1>
+  <p>Complete REST API documentation for mobile app integration — All endpoints from OpenAPI spec</p>
+  <div class="header-meta">
+    <span class="badge badge-blue">Version 1.0.0</span>
+    <span class="badge badge-green">JSON REST API</span>
+    <span class="badge badge-purple">JWT Auth</span>
+    <span class="badge badge-blue">Base: http://&lt;server-ip&gt;:8000</span>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- ─── SIDEBAR ─── -->
+<nav>
+  <div class="search-wrap">
+    <input class="search-box" type="text" placeholder="Search endpoints..." id="searchInput" />
+  </div>
+  <div class="nav-section">Authentication</div>
+  <a href="#auth">🔐 Auth</a>
+  <div class="nav-section">Cameras</div>
+  <a href="#cameras">📹 Cameras</a>
+  <a href="#stream">📡 Streaming</a>
+  <div class="nav-section">Detections & Alerts</div>
+  <a href="#detections">🔍 Detections</a>
+  <a href="#alerts">🚨 Alerts</a>
+  <a href="#alert-settings">⚙️ Alert Settings</a>
+  <a href="#camera-filters">🎯 Camera Filters</a>
+  <div class="nav-section">Analytics</div>
+  <a href="#reports">📊 Reports</a>
+  <div class="nav-section">AI Testing</div>
+  <a href="#testing">🧪 Testing / AI</a>
+  <div class="nav-section">Admin</div>
+  <a href="#admin">👑 Admin</a>
+  <div class="nav-section">System</div>
+  <a href="#system">💡 System / Health</a>
+  <div class="nav-section">Reference</div>
+  <a href="#models">📋 Data Models</a>
+  <a href="#alert-types">🏷️ Alert Types</a>
+</nav>
+
+<!-- ─── MAIN ─── -->
+<main>
+
+  <!-- Base URL -->
+  <div class="base-url-box">
+    <div>
+      <span>Base URL &nbsp;</span>
+      <strong id="baseUrlDisplay">http://&lt;server-ip&gt;:8000</strong>
+    </div>
+    <button class="copy-btn" onclick="copyBase()">Copy</button>
+  </div>
+
+  <!-- Auth Notice -->
+  <div class="auth-notice">
+    <strong>🔑 Authentication:</strong> All protected endpoints require a Bearer token in the header.<br>
+    <code>Authorization: Bearer &lt;your_token&gt;</code><br>
+    Obtain the token from <code>POST /auth/login</code> or <code>POST /auth/token</code>.
+    Tokens expire after the configured duration (default 30 days).
+  </div>
+
+  <!-- ══════════════════════ AUTH ══════════════════════ -->
+  <div id="auth" class="section-header">
+    <span class="section-icon">🔐</span>
+    <h2>Authentication</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">User registration, login, and profile management.</p>
+
+  <!-- POST /auth/register -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/auth/register</span>
+      <span class="endpoint-desc">Register a new user account</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">username</td><td class="param-type">string</td><td class="param-required">Required</td><td>Unique username (min 3 chars)</td></tr>
+          <tr><td class="param-name">password</td><td class="param-type">string</td><td class="param-required">Required</td><td>Password (min 6 chars, max 72)</td></tr>
+          <tr><td class="param-name">email</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>Email address</td></tr>
+          <tr><td class="param-name">role</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>Role: <code>user</code> | <code>client</code> | <code>admin</code> — default: <code>user</code></td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Example Request</h4>
+        <pre>{
+  <span class="json-key">"username"</span>: <span class="json-string">"john_doe"</span>,
+  <span class="json-key">"password"</span>: <span class="json-string">"securePass123"</span>,
+  <span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>,
+  <span class="json-key">"role"</span>: <span class="json-string">"user"</span>
+}</pre>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Success</span></div>
+          <div class="response-body"><span class="json-key">"message"</span>: <span class="json-string">"User created successfully"</span>,
+<span class="json-key">"user_id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /auth/login -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/auth/login</span>
+      <span class="endpoint-desc">Login with JSON body — returns JWT token</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">username</td><td class="param-type">string</td><td class="param-required">Required</td><td>Username</td></tr>
+          <tr><td class="param-name">password</td><td class="param-type">string</td><td class="param-required">Required</td><td>Password</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Example Request</h4>
+        <pre>{
+  <span class="json-key">"username"</span>: <span class="json-string">"john_doe"</span>,
+  <span class="json-key">"password"</span>: <span class="json-string">"securePass123"</span>
+}</pre>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Success — Save the access_token for all subsequent requests</span></div>
+          <div class="response-body"><span class="json-key">"access_token"</span>: <span class="json-string">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+<span class="json-key">"token_type"</span>: <span class="json-string">"bearer"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /auth/token -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/auth/token</span>
+      <span class="endpoint-desc">Login with OAuth2 form data (x-www-form-urlencoded)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (form-urlencoded)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">username</td><td class="param-type">string</td><td class="param-required">Required</td><td>Username</td></tr>
+          <tr><td class="param-name">password</td><td class="param-type">string</td><td class="param-required">Required</td><td>Password</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Note</h4>
+        <p style="color:var(--muted); font-size:12px;">Use Content-Type: <code>application/x-www-form-urlencoded</code>. Returns same token structure as <code>/auth/login</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /auth/me -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/auth/me</span>
+      <span class="endpoint-desc">Get current logged-in user info</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Success</span></div>
+          <div class="response-body"><span class="json-key">"username"</span>: <span class="json-string">"john_doe"</span>,
+<span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>,
+<span class="json-key">"role"</span>: <span class="json-string">"user"</span>,
+<span class="json-key">"created_at"</span>: <span class="json-string">"2024-01-15T10:30:00Z"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /auth/update-username -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/auth/update-username</span>
+      <span class="endpoint-desc">Change current user's username</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">new_username</td><td class="param-type">string</td><td class="param-required">Required</td><td>New username (min 3 chars, must be unique)</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Example</h4>
+        <pre>{ <span class="json-key">"new_username"</span>: <span class="json-string">"new_name"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /auth/update-password -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/auth/update-password</span>
+      <span class="endpoint-desc">Change current user's password</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">current_password</td><td class="param-type">string</td><td class="param-required">Required</td><td>Current password for verification</td></tr>
+          <tr><td class="param-name">new_password</td><td class="param-type">string</td><td class="param-required">Required</td><td>New password (min 6 chars)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /auth/camera-settings -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/auth/camera-settings</span>
+      <span class="endpoint-desc">Get user camera settings (local/online mode + URLs)</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"camera_mode"</span>: <span class="json-string">"local"</span>,  <span class="json-null">// "local" or "online"</span>
+  <span class="json-key">"online_cameras"</span>: [<span class="json-string">"rtsp://..."</span>]
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /auth/camera-settings -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/auth/camera-settings</span>
+      <span class="endpoint-desc">Update user camera mode and online camera URLs</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_mode</td><td class="param-type">string</td><td class="param-optional">Optional</td><td><code>local</code> | <code>online</code></td></tr>
+          <tr><td class="param-name">online_cameras</td><td class="param-type">array</td><td class="param-optional">Optional</td><td>Array of RTSP/HTTP URLs</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ CAMERAS ══════════════════════ -->
+  <div id="cameras" class="section-header">
+    <span class="section-icon">📹</span>
+    <h2>Cameras</h2>
+    <span class="auth-tag auth-optional">Auth Optional</span>
+  </div>
+  <p class="section-desc">Manage RTSP, DroidCam, iVCam, USB, and online cameras. When authenticated, only the current user's cameras are returned.</p>
+
+  <!-- POST /cameras/add -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/cameras/add</span>
+      <span class="endpoint-desc">Add a new camera</span>
+      <span class="auth-tag auth-optional">Auth Optional</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">name</td><td class="param-type">string</td><td class="param-required">Required</td><td>Camera display name</td></tr>
+          <tr><td class="param-name">url</td><td class="param-type">string</td><td class="param-required">Required</td><td>Camera URL or device index (e.g. <code>rtsp://...</code>, <code>0</code>, <code>1</code>, <code>http://...</code>)</td></tr>
+          <tr><td class="param-name">camera_type</td><td class="param-type">string</td><td class="param-optional">Optional</td><td><code>droidcam</code> | <code>usb</code> | <code>rtsp</code> | <code>online</code> — default: <code>droidcam</code></td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Example Request</h4>
+        <pre>{
+  <span class="json-key">"name"</span>: <span class="json-string">"Front Door Camera"</span>,
+  <span class="json-key">"url"</span>: <span class="json-string">"rtsp://192.168.1.10:8554/live"</span>,
+  <span class="json-key">"camera_type"</span>: <span class="json-string">"rtsp"</span>
+}</pre>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Camera added</span></div>
+          <div class="response-body"><span class="json-key">"message"</span>: <span class="json-string">"Camera added successfully"</span>,
+<span class="json-key">"camera_id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span>,
+<span class="json-key">"name"</span>: <span class="json-string">"Front Door Camera"</span>,
+<span class="json-key">"url"</span>: <span class="json-string">"rtsp://192.168.1.10:8554/live"</span>,
+<span class="json-key">"status"</span>: <span class="json-string">"active"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /cameras/ -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/cameras/</span>
+      <span class="endpoint-desc">Get all cameras for the current user</span>
+      <span class="auth-tag auth-optional">Auth Optional</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200 — Array of camera objects</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Array</span></div>
+          <div class="response-body">[
+  {
+    <span class="json-key">"id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span>,
+    <span class="json-key">"name"</span>: <span class="json-string">"Front Door Camera"</span>,
+    <span class="json-key">"url"</span>: <span class="json-string">"rtsp://192.168.1.10:8554/live"</span>,
+    <span class="json-key">"camera_type"</span>: <span class="json-string">"rtsp"</span>,
+    <span class="json-key">"status"</span>: <span class="json-string">"active"</span>,
+    <span class="json-key">"viewers"</span>: <span class="json-number">2</span>,
+    <span class="json-key">"created_at"</span>: <span class="json-string">"2024-01-15T10:30:00Z"</span>
+  }
+]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /cameras/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/cameras/{camera_id}</span>
+      <span class="endpoint-desc">Get a single camera by ID</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>MongoDB ObjectId of the camera</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE /cameras/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/cameras/{camera_id}</span>
+      <span class="endpoint-desc">Delete a camera</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>MongoDB ObjectId of the camera</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /cameras/{id}/start -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/cameras/{camera_id}/start</span>
+      <span class="endpoint-desc">Start a camera (enable detection)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{ <span class="json-key">"message"</span>: <span class="json-string">"Camera started successfully"</span>, <span class="json-key">"camera_id"</span>: <span class="json-string">"..."</span>, <span class="json-key">"status"</span>: <span class="json-string">"active"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /cameras/{id}/stop -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/cameras/{camera_id}/stop</span>
+      <span class="endpoint-desc">Stop a camera</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{ <span class="json-key">"message"</span>: <span class="json-string">"Camera stopped successfully"</span>, <span class="json-key">"camera_id"</span>: <span class="json-string">"..."</span>, <span class="json-key">"status"</span>: <span class="json-string">"inactive"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /cameras/detect/available -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/cameras/detect/available</span>
+      <span class="endpoint-desc">Detect available cameras on the system</span>
+      <span class="auth-tag auth-optional">Auth Optional</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <p style="color:var(--muted);font-size:12px;">When authenticated and user is in <code>online</code> mode, returns the user's online cameras from DB. Otherwise scans local USB/DroidCam devices.</p>
+      </div>
+      <div class="body-section">
+        <h4>Response 200 — Array</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Array</span></div>
+          <div class="response-body">[{
+  <span class="json-key">"index"</span>: <span class="json-number">0</span>,
+  <span class="json-key">"name"</span>: <span class="json-string">"DroidCam Source"</span>,
+  <span class="json-key">"type"</span>: <span class="json-string">"usb"</span>,
+  <span class="json-key">"resolution"</span>: <span class="json-string">"1280x720"</span>,
+  <span class="json-key">"fps"</span>: <span class="json-string">"30"</span>,
+  <span class="json-key">"backend"</span>: <span class="json-string">"DirectShow"</span>,
+  <span class="json-key">"is_online"</span>: <span class="json-bool">false</span>
+}]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /cameras/list/all -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/cameras/list/all</span>
+      <span class="endpoint-desc">List all cameras from the camera manager (no auth, for testing)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Returns runtime camera state dictionary including active status and viewer count.</p>
+    </div>
+  </div>
+
+  <!-- POST /cameras/setup/index/{camera_index} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/cameras/setup/index/{camera_index}</span>
+      <span class="endpoint-desc">Setup a camera using its system index or online URL</span>
+      <span class="auth-tag auth-optional">Auth Optional</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_index</td><td class="param-type">string</td><td>Camera index (e.g. <code>0</code>, <code>1</code>) or online camera URL</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <p style="color:var(--muted);font-size:12px;">Allows the user to select a specific camera from the detected list by index. Creates the camera entry if not exists.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /cameras/auto-setup -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/cameras/auto-setup</span>
+      <span class="endpoint-desc">Automatically setup the first available camera (no auth required)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Scans the system and sets up the first camera it finds. Useful for quick initialization.</p>
+    </div>
+  </div>
+
+  <!-- POST /cameras/api/{camera_id}/start -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/cameras/api/{camera_id}/start</span>
+      <span class="endpoint-desc">Start a camera — no auth required (for external/automation use)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /cameras/api/{camera_id}/stop -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/cameras/api/{camera_id}/stop</span>
+      <span class="endpoint-desc">Stop a camera — no auth required (for external/automation use)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ STREAMING ══════════════════════ -->
+  <div id="stream" class="section-header">
+    <span class="section-icon">📡</span>
+    <h2>Streaming</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">MJPEG video streams with real-time AI detection overlay. Embed directly in <code>&lt;img&gt;</code> tags or use in native app image views.</p>
+
+  <!-- GET /stream/{camera_id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/stream/{camera_id}</span>
+      <span class="endpoint-desc">Stream MJPEG video with AI detection (by ObjectId or index)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string | int</td><td>MongoDB ObjectId <em>or</em> numeric index (0, 1, 2, ...)</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response</h4>
+        <p style="color:var(--muted);font-size:12px;">Returns a continuous <code>multipart/x-mixed-replace; boundary=frame</code> MJPEG stream. Use in an <code>&lt;img src="..."&gt;</code> tag or native MJPEG player.</p>
+      </div>
+      <div class="body-section">
+        <h4>Examples</h4>
+        <pre>GET /stream/64f3c8a1b2d4e5f6a7b8c9d0   (by ObjectId)
+GET /stream/0                              (camera index 0)
+GET /stream/1                              (camera index 1)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /stream/by-index/{index} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/stream/by-index/{camera_index}</span>
+      <span class="endpoint-desc">Stream video by numeric camera index</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_index</td><td class="param-type">integer</td><td>Zero-based camera index (0 = first camera, 1 = iVCam, etc.)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /stream/{camera_id}/status -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/stream/{camera_id}/status</span>
+      <span class="endpoint-desc">Get current stream status and live detections</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>MongoDB ObjectId of the camera</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3..."</span>,
+  <span class="json-key">"is_active"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"viewers"</span>: <span class="json-number">2</span>,
+  <span class="json-key">"detections"</span>: [<span class="json-string">"..."</span>],
+  <span class="json-key">"alerts"</span>: [<span class="json-string">"..."</span>]
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /stream/{camera_id}/snapshot -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/stream/{camera_id}/snapshot</span>
+      <span class="endpoint-desc">Get a single JPEG frame snapshot from a camera</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>MongoDB ObjectId of the camera</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <p style="color:var(--muted);font-size:12px;">Returns a single <code>image/jpeg</code> frame. Good for thumbnails and previews.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /stream/by-index/{camera_index}/snapshot -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/stream/by-index/{camera_index}/snapshot</span>
+      <span class="endpoint-desc">Get a snapshot image by camera index</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_index</td><td class="param-type">integer</td><td>Zero-based camera index</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ DETECTIONS ══════════════════════ -->
+  <div id="detections" class="section-header">
+    <span class="section-icon">🔍</span>
+    <h2>Detections</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">Real-time detection data from active cameras. Returns current frame analysis results.</p>
+
+  <!-- GET /detections/current -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/detections/current</span>
+      <span class="endpoint-desc">Get current detections from all active cameras</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Object keyed by camera_id</span></div>
+          <div class="response-body">{
+  <span class="json-key">"64f3c8a1b2d4e5f6a7b8c9d0"</span>: {
+    <span class="json-key">"detections"</span>: [{ <span class="json-key">"class"</span>: <span class="json-string">"no_helmet"</span>, <span class="json-key">"confidence"</span>: <span class="json-number">0.91</span> }],
+    <span class="json-key">"alerts"</span>: [<span class="json-string">"no_helmet"</span>],
+    <span class="json-key">"viewers"</span>: <span class="json-number">1</span>
+  }
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /detections/{camera_id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/detections/{camera_id}</span>
+      <span class="endpoint-desc">Get current detections for a specific camera</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Success</span></div>
+          <div class="response-body">{
+  <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span>,
+  <span class="json-key">"is_active"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"detections"</span>: [<span class="json-string">"..."</span>],
+  <span class="json-key">"alerts"</span>: [<span class="json-string">"..."</span>],
+  <span class="json-key">"detection_count"</span>: <span class="json-number">3</span>,
+  <span class="json-key">"alert_count"</span>: <span class="json-number">1</span>
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ ALERTS ══════════════════════ -->
+  <div id="alerts" class="section-header">
+    <span class="section-icon">🚨</span>
+    <h2>Alerts</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">Safety violation alerts generated by AI detection. Each alert includes a snapshot image URL and detection metadata.</p>
+
+  <!-- GET /alerts/ -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alerts/</span>
+      <span class="endpoint-desc">Get all alerts with filtering and pagination</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>—</td><td>Filter by camera ID</td></tr>
+          <tr><td class="param-name">alert_type</td><td class="param-type">string</td><td>—</td><td>Filter by alert type (see Alert Types section)</td></tr>
+          <tr><td class="param-name">limit</td><td class="param-type">integer</td><td>100</td><td>Max results (max 1000)</td></tr>
+          <tr><td class="param-name">skip</td><td class="param-type">integer</td><td>0</td><td>Pagination offset</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200 — Array of alert objects</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Array</span></div>
+          <div class="response-body">[{
+  <span class="json-key">"id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span>,
+  <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d1"</span>,
+  <span class="json-key">"alert_type"</span>: <span class="json-string">"no_helmet"</span>,
+  <span class="json-key">"severity"</span>: <span class="json-string">"high"</span>,
+  <span class="json-key">"message"</span>: <span class="json-string">"No helmet detected on worker"</span>,
+  <span class="json-key">"timestamp"</span>: <span class="json-string">"2024-01-15T10:30:00.000Z"</span>,
+  <span class="json-key">"snapshot_url"</span>: <span class="json-string">"/static/snapshots/alert_xyz.jpg"</span>,
+  <span class="json-key">"video_url"</span>: <span class="json-null">null</span>,
+  <span class="json-key">"detection_data"</span>: [],
+  <span class="json-key">"is_group_alert"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"violators_count"</span>: <span class="json-number">1</span>,
+  <span class="json-key">"violation_details"</span>: [],
+  <span class="json-key">"is_browser"</span>: <span class="json-bool">false</span>
+}]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alerts/live -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alerts/live</span>
+      <span class="endpoint-desc">Poll for live/real-time alerts (last N seconds)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">seconds</td><td class="param-type">integer</td><td>30</td><td>Time window in seconds (5–300). Poll every 5–10s for live updates.</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <p style="color:var(--muted);font-size:12px;">💡 <strong style="color:var(--green)">Tip:</strong> For realtime mobile notifications, poll this endpoint every 5–10 seconds.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alerts/recent -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alerts/recent</span>
+      <span class="endpoint-desc">Get alerts from the last N minutes</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">minutes</td><td class="param-type">integer</td><td>60</td><td>Look-back window in minutes (1–1440)</td></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>—</td><td>Filter by specific camera</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alerts/statistics -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alerts/statistics</span>
+      <span class="endpoint-desc">Get alert count statistics by type</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>—</td><td>Filter by specific camera</td></tr>
+          <tr><td class="param-name">days</td><td class="param-type">integer</td><td>7</td><td>Number of days to analyze (1–90)</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"total_alerts"</span>: <span class="json-number">142</span>,
+  <span class="json-key">"by_type"</span>: { <span class="json-key">"no_helmet"</span>: <span class="json-number">50</span>, <span class="json-key">"smoking"</span>: <span class="json-number">30</span> },
+  <span class="json-key">"period_days"</span>: <span class="json-number">7</span>,
+  <span class="json-key">"since"</span>: <span class="json-string">"2024-01-08T00:00:00Z"</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /alerts/browser -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/alerts/browser</span>
+      <span class="endpoint-desc">Save an alert from a browser/local camera</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">alert_type</td><td class="param-type">string</td><td class="param-required">Required</td><td>Type of violation (see Alert Types)</td></tr>
+          <tr><td class="param-name">severity</td><td class="param-type">string</td><td class="param-optional">Optional</td><td><code>low</code> | <code>medium</code> | <code>high</code></td></tr>
+          <tr><td class="param-name">message</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>Alert message</td></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>Camera identifier</td></tr>
+          <tr><td class="param-name">timestamp</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>ISO 8601 timestamp</td></tr>
+          <tr><td class="param-name">snapshot_dataurl</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>Base64 image <code>data:image/jpeg;base64,...</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alerts/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alerts/{alert_id}</span>
+      <span class="endpoint-desc">Get a single alert by ID</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">alert_id</td><td class="param-type">string</td><td>MongoDB ObjectId of the alert</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE /alerts/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/alerts/{alert_id}</span>
+      <span class="endpoint-desc">Delete a single alert</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+          <tr><td class="param-name">alert_id</td><td class="param-type">string</td><td>MongoDB ObjectId of the alert</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE /alerts/ -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/alerts/</span>
+      <span class="endpoint-desc">Bulk delete alerts older than N days</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">days</td><td class="param-type">integer</td><td>30</td><td>Delete alerts older than this many days (min 1)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alerts/filters/notifications -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alerts/filters/notifications</span>
+      <span class="endpoint-desc">Get live filtered notifications for a specific camera (real-time polling)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-required">Required</td><td>Camera ID — starts fetching live alerts once provided</td></tr>
+          <tr><td class="param-name">last_timestamp</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>ISO timestamp — returns only alerts <strong>newer</strong> than this (for continuous polling)</td></tr>
+          <tr><td class="param-name">seconds</td><td class="param-type">integer</td><td class="param-optional">Optional</td><td>Live window in seconds (5–300, default 30)</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"alerts"</span>: [{
+    <span class="json-key">"id"</span>: <span class="json-string">"64f3..."</span>,
+    <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3..."</span>,
+    <span class="json-key">"alert_type"</span>: <span class="json-string">"no_helmet"</span>,
+    <span class="json-key">"severity"</span>: <span class="json-string">"high"</span>,
+    <span class="json-key">"message"</span>: <span class="json-string">"..."</span>,
+    <span class="json-key">"snapshot_url"</span>: <span class="json-string">"/static/snapshots/xxx.jpg"</span>,
+    <span class="json-key">"timestamp"</span>: <span class="json-string">"2024-01-15T10:30:00.000Z"</span>
+  }],
+  <span class="json-key">"count"</span>: <span class="json-number">3</span>,
+  <span class="json-key">"latest_timestamp"</span>: <span class="json-string">"2024-01-15T10:30:00.000Z"</span>
+}</pre>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px;">💡 <strong style="color:var(--green)">Tip:</strong> Pass <code>last_timestamp</code> from the previous response to get incremental updates efficiently.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ ALERT SETTINGS ══════════════════════ -->
+  <div id="alert-settings" class="section-header">
+    <span class="section-icon">⚙️</span>
+    <h2>Alert Settings</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">Configure thresholds (how long a violation must persist before triggering) and cooldowns (minimum time between repeat alerts) per camera.</p>
+
+  <!-- GET /alert-settings/camera/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alert-settings/camera/{camera_id}</span>
+      <span class="endpoint-desc">Get alert thresholds and cooldowns for a camera</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Settings object</span></div>
+          <div class="response-body">{
+  <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span>,
+  <span class="json-key">"thresholds"</span>: {
+    <span class="json-key">"no_helmet"</span>: <span class="json-number">5</span>,
+    <span class="json-key">"no_vest"</span>: <span class="json-number">5</span>,
+    <span class="json-key">"mobile_phone"</span>: <span class="json-number">3</span>,
+    <span class="json-key">"smoking"</span>: <span class="json-number">5</span>,
+    <span class="json-key">"person_fallen"</span>: <span class="json-number">0</span>,
+    <span class="json-key">"no_fire_extinguisher"</span>: <span class="json-number">10</span>,
+    <span class="json-key">"camera_blocked"</span>: <span class="json-number">5</span>,
+    <span class="json-key">"restricted_zone"</span>: <span class="json-number">3</span>
+  },
+  <span class="json-key">"cooldowns"</span>: {
+    <span class="json-key">"no_helmet"</span>: <span class="json-number">60</span>,
+    <span class="json-key">"no_vest"</span>: <span class="json-number">60</span>,
+    <span class="json-key">"mobile_phone"</span>: <span class="json-number">30</span>,
+    <span class="json-key">"smoking"</span>: <span class="json-number">60</span>,
+    <span class="json-key">"person_fallen"</span>: <span class="json-number">10</span>,
+    <span class="json-key">"no_fire_extinguisher"</span>: <span class="json-number">120</span>,
+    <span class="json-key">"camera_blocked"</span>: <span class="json-number">30</span>,
+    <span class="json-key">"restricted_zone"</span>: <span class="json-number">30</span>
+  }
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /alert-settings/camera/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/alert-settings/camera/{camera_id}</span>
+      <span class="endpoint-desc">Update alert settings for a camera (applied instantly)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <pre>{
+  <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span>,
+  <span class="json-key">"thresholds"</span>: {
+    <span class="json-key">"no_helmet"</span>: <span class="json-number">5</span>,
+    <span class="json-key">"no_vest"</span>: <span class="json-number">5</span>,
+    <span class="json-key">"mobile_phone"</span>: <span class="json-number">0</span>,
+    <span class="json-key">"smoking"</span>: <span class="json-number">0</span>,
+    <span class="json-key">"person_fallen"</span>: <span class="json-number">0</span>,
+    <span class="json-key">"no_fire_extinguisher"</span>: <span class="json-number">0</span>,
+    <span class="json-key">"camera_blocked"</span>: <span class="json-number">0</span>,
+    <span class="json-key">"restricted_zone"</span>: <span class="json-number">0</span>
+  },
+  <span class="json-key">"cooldowns"</span>: {
+    <span class="json-key">"no_helmet"</span>: <span class="json-number">60</span>,
+    <span class="json-key">"no_vest"</span>: <span class="json-number">60</span>,
+    <span class="json-key">"mobile_phone"</span>: <span class="json-number">30</span>,
+    <span class="json-key">"smoking"</span>: <span class="json-number">30</span>,
+    <span class="json-key">"person_fallen"</span>: <span class="json-number">10</span>,
+    <span class="json-key">"no_fire_extinguisher"</span>: <span class="json-number">120</span>,
+    <span class="json-key">"camera_blocked"</span>: <span class="json-number">30</span>,
+    <span class="json-key">"restricted_zone"</span>: <span class="json-number">30</span>
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alert-settings/ -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alert-settings/</span>
+      <span class="endpoint-desc">Get settings for all cameras</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Returns an array of alert settings for every camera that has been configured, sorted by most recently updated.</p>
+    </div>
+  </div>
+
+  <!-- PUT /alert-settings/{camera_id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/alert-settings/{camera_id}</span>
+      <span class="endpoint-desc">Update alert settings for a camera (direct path, no /camera/ prefix)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Request Body — application/json</h4>
+        <pre>{
+  <span class="json-key">"no_helmet"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"no_vest"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"no_mask"</span>: <span class="json-bool">false</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alert-settings/{alert_type}/threshold -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alert-settings/{alert_type}/threshold</span>
+      <span class="endpoint-desc">Get confidence threshold for a specific alert type</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Example</th></tr>
+          <tr><td class="param-name">alert_type</td><td class="param-type">string</td><td><code>no_helmet</code></td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>Optional</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /alert-settings/{alert_type}/threshold -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/alert-settings/{alert_type}/threshold</span>
+      <span class="endpoint-desc">Update confidence threshold for a specific alert type</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body — application/json</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">value</td><td class="param-type">integer</td><td class="param-required">Required</td><td>Threshold value (0–300)</td></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>Optional</td><td>Scope to a specific camera</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /alert-settings/{alert_type}/cooldown -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/alert-settings/{alert_type}/cooldown</span>
+      <span class="endpoint-desc">Get cooldown period for a specific alert type</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Example</th></tr>
+          <tr><td class="param-name">alert_type</td><td class="param-type">string</td><td><code>no_helmet</code></td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>Optional</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /alert-settings/{alert_type}/cooldown -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/alert-settings/{alert_type}/cooldown</span>
+      <span class="endpoint-desc">Update cooldown period for a specific alert type</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body — application/json</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">value</td><td class="param-type">integer</td><td class="param-required">Required</td><td>Cooldown in seconds (0–300)</td></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>Optional</td><td>Scope to a specific camera</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ CAMERA FILTERS ══════════════════════ -->
+  <div id="camera-filters" class="section-header">
+    <span class="section-icon">🎯</span>
+    <h2>Camera Detection Filters</h2>
+    <span class="auth-tag auth-required">🔒 Auth Required</span>
+  </div>
+  <p class="section-desc">Control which detection types are active per camera. Disabling a type prevents alerts for that violation even if detected.</p>
+
+  <!-- GET /camera-filters/user -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/camera-filters/user</span>
+      <span class="endpoint-desc">Get detection filters for all of the user's cameras</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <div class="response-block">
+          <div class="response-header"><span class="status-200">200</span><span>Success</span></div>
+          <div class="response-body">{
+  <span class="json-key">"user_id"</span>: <span class="json-string">"64f3..."</span>,
+  <span class="json-key">"username"</span>: <span class="json-string">"john_doe"</span>,
+  <span class="json-key">"cameras"</span>: {
+    <span class="json-key">"online"</span>: [{
+      <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3..."</span>,
+      <span class="json-key">"camera_name"</span>: <span class="json-string">"Front Door"</span>,
+      <span class="json-key">"enabled_detections"</span>: [<span class="json-string">"no_helmet"</span>, <span class="json-string">"no_vest"</span>],
+      <span class="json-key">"all_detections"</span>: [<span class="json-string">"no_helmet"</span>, <span class="json-string">"..."</span>]
+    }],
+    <span class="json-key">"local"</span>: []
+  },
+  <span class="json-key">"total_cameras"</span>: <span class="json-number">1</span>
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /camera-filters/camera/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/camera-filters/camera/{camera_id}</span>
+      <span class="endpoint-desc">Get detection filter for a specific camera</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3..."</span>,
+  <span class="json-key">"camera_name"</span>: <span class="json-string">"Front Door"</span>,
+  <span class="json-key">"camera_type"</span>: <span class="json-string">"online"</span>,
+  <span class="json-key">"enabled_detections"</span>: [<span class="json-string">"no_helmet"</span>, <span class="json-string">"no_vest"</span>, <span class="json-string">"smoking"</span>],
+  <span class="json-key">"all_detections"</span>: [<span class="json-string">"no_helmet"</span>, <span class="json-string">"no_vest"</span>, <span class="json-string">"mobile_phone"</span>, <span class="json-string">"..."</span>],
+  <span class="json-key">"updated_at"</span>: <span class="json-string">"2024-01-15T10:30:00Z"</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /camera-filters/camera/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/camera-filters/camera/{camera_id}</span>
+      <span class="endpoint-desc">Save/update detection filter for a camera</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <pre>{
+  <span class="json-key">"enabled_detections"</span>: [<span class="json-string">"no_helmet"</span>, <span class="json-string">"no_vest"</span>, <span class="json-string">"smoking"</span>]
+}</pre>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px;">Only the detection types listed here will generate alerts. Omit a type to disable it. Changes apply immediately to the running camera.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE /camera-filters/camera/{camera_id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/camera-filters/camera/{camera_id}</span>
+      <span class="endpoint-desc">Delete camera filter — reverts to all detection types enabled</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /camera-filters/camera/{camera_id}/reset -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/camera-filters/camera/{camera_id}/reset</span>
+      <span class="endpoint-desc">Reset camera filter to enable all detection types</span>
+      <span class="auth-tag auth-required">🔒 Auth Required</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Re-enables all detection types for the camera without deleting the filter record.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ REPORTS ══════════════════════ -->
+  <div id="reports" class="section-header">
+    <span class="section-icon">📊</span>
+    <h2>Reports</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">Aggregated analytics and historical reports. All endpoints accept a <code>period</code> parameter.</p>
+
+  <!-- GET /reports/summary -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/summary</span>
+      <span class="endpoint-desc">Comprehensive report summary for a time period</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">period</td><td class="param-type">string</td><td>today</td><td><code>today</code> (24h) | <code>week</code> (7d) | <code>month</code> (30d) | <code>all</code> (1yr)</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"period"</span>: <span class="json-string">"today"</span>,
+  <span class="json-key">"total_alerts"</span>: <span class="json-number">47</span>,
+  <span class="json-key">"critical_alerts"</span>: <span class="json-number">12</span>,
+  <span class="json-key">"unique_cameras"</span>: <span class="json-number">3</span>,
+  <span class="json-key">"alerts_by_type"</span>: { <span class="json-key">"no_helmet"</span>: <span class="json-number">20</span>, <span class="json-key">"smoking"</span>: <span class="json-number">15</span> },
+  <span class="json-key">"alerts_by_severity"</span>: { <span class="json-key">"high"</span>: <span class="json-number">12</span>, <span class="json-key">"medium"</span>: <span class="json-number">25</span>, <span class="json-key">"low"</span>: <span class="json-number">10</span> },
+  <span class="json-key">"time_distribution"</span>: [{ <span class="json-key">"time"</span>: <span class="json-string">"9:00"</span>, <span class="json-key">"count"</span>: <span class="json-number">5</span> }],
+  <span class="json-key">"recent_alerts"</span>: [<span class="json-string">"...last 10 alerts..."</span>]
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /reports/alerts-by-type -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/alerts-by-type</span>
+      <span class="endpoint-desc">Alerts breakdown grouped by violation type</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th></tr>
+          <tr><td class="param-name">period</td><td class="param-type">string</td><td>today</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"alerts_by_type"</span>: [{
+    <span class="json-key">"alert_type"</span>: <span class="json-string">"no_helmet"</span>,
+    <span class="json-key">"total_count"</span>: <span class="json-number">50</span>,
+    <span class="json-key">"high_severity_count"</span>: <span class="json-number">20</span>,
+    <span class="json-key">"medium_severity_count"</span>: <span class="json-number">25</span>,
+    <span class="json-key">"low_severity_count"</span>: <span class="json-number">5</span>,
+    <span class="json-key">"latest_occurrence"</span>: <span class="json-string">"2024-01-15T10:30:00Z"</span>
+  }]
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /reports/alerts-by-camera -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/alerts-by-camera</span>
+      <span class="endpoint-desc">Alerts breakdown grouped by camera</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th></tr>
+          <tr><td class="param-name">period</td><td class="param-type">string</td><td>today</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /reports/timeline -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/timeline</span>
+      <span class="endpoint-desc">Alert timeline data for charts</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">period</td><td class="param-type">string</td><td>week</td><td><code>today</code> | <code>week</code> | <code>month</code></td></tr>
+          <tr><td class="param-name">interval</td><td class="param-type">string</td><td>hour</td><td><code>hour</code> | <code>day</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /reports/performance-metrics -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/performance-metrics</span>
+      <span class="endpoint-desc">Get system performance metrics</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th></tr>
+          <tr><td class="param-name">period</td><td class="param-type">string</td><td>week — <code>today</code> | <code>week</code> | <code>month</code> | <code>all</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /reports/top-alerts -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/top-alerts</span>
+      <span class="endpoint-desc">Get top alert types by frequency (leaderboard)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">period</td><td class="param-type">string</td><td>week</td><td><code>today</code> | <code>week</code> | <code>month</code> | <code>all</code></td></tr>
+          <tr><td class="param-name">limit</td><td class="param-type">integer</td><td>5</td><td>Number of top items to return (1–20)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /reports/comparison -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/comparison</span>
+      <span class="endpoint-desc">Compare current period vs previous period</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Returns percentage change in alert counts comparing the current week/period against the previous one. Useful for trend indicators.</p>
+    </div>
+  </div>
+
+  <!-- GET /reports/export -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/reports/export</span>
+      <span class="endpoint-desc">Export report data as JSON or CSV</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Query Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr><td class="param-name">period</td><td class="param-type">string</td><td>week</td><td><code>today</code> | <code>week</code> | <code>month</code> | <code>all</code></td></tr>
+          <tr><td class="param-name">format</td><td class="param-type">string</td><td>json</td><td><code>json</code> | <code>csv</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TESTING / AI ══════════════════════ -->
+  <div id="testing" class="section-header">
+    <span class="section-icon">🧪</span>
+    <h2>Testing / AI Detection</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">Upload images or videos to test the YOLO AI model directly. These endpoints do NOT trigger alerts — pure detection only.</p>
+
+  <!-- POST /test/detect-image -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/test/detect-image</span>
+      <span class="endpoint-desc">Upload image and get annotated JPEG back (no alerts)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request — multipart/form-data</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">file</td><td class="param-type">binary</td><td class="param-required">Required</td><td>Image file (JPEG, PNG, etc.)</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"annotated_image_url"</span>: <span class="json-string">"/static/..."</span>,
+  <span class="json-key">"detections"</span>: [<span class="json-string">"..."</span>]
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /test/detect-image/details -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/test/detect-image/details</span>
+      <span class="endpoint-desc">Upload image and get detailed detection JSON + annotated image</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request — multipart/form-data</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">file</td><td class="param-type">binary</td><td class="param-required">Required</td><td>Image file</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"detections"</span>: [{
+    <span class="json-key">"class"</span>: <span class="json-string">"no_helmet"</span>,
+    <span class="json-key">"confidence"</span>: <span class="json-number">0.94</span>,
+    <span class="json-key">"bbox"</span>: [<span class="json-number">100</span>, <span class="json-number">150</span>, <span class="json-number">200</span>, <span class="json-number">300</span>]
+  }],
+  <span class="json-key">"detection_count"</span>: <span class="json-number">1</span>,
+  <span class="json-key">"annotated_image_url"</span>: <span class="json-string">"/static/..."</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /test/detect-video -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/test/detect-video</span>
+      <span class="endpoint-desc">Upload a video and get back a fully processed video with detection overlay</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request — multipart/form-data</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">file</td><td class="param-type">binary</td><td class="param-required">Required</td><td>Video file (MP4, AVI, etc.)</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <p style="color:var(--muted);font-size:12px;">⚠️ Processing may take time depending on video length. Returns a URL to the processed video.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /test/detection -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/test/detection</span>
+      <span class="endpoint-desc">Test YOLO detection on an image — returns annotated image directly</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request — multipart/form-data</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">file</td><td class="param-type">binary</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+      <div class="body-section">
+        <p style="color:var(--muted);font-size:12px;">Returns the annotated image as a binary response (<code>image/jpeg</code>).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /test/detection/json -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/test/detection/json</span>
+      <span class="endpoint-desc">Test YOLO detection on an image — returns JSON with detection results</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request — multipart/form-data</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">file</td><td class="param-type">binary</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /test/model/status -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/test/model/status</span>
+      <span class="endpoint-desc">Get YOLO model status and GPU information</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"model_loaded"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"model_path"</span>: <span class="json-string">"best.pt"</span>,
+  <span class="json-key">"device"</span>: <span class="json-string">"cuda:0"</span>,
+  <span class="json-key">"gpu_name"</span>: <span class="json-string">"NVIDIA RTX 3080"</span>,
+  <span class="json-key">"gpu_memory_total"</span>: <span class="json-string">"10240 MB"</span>,
+  <span class="json-key">"gpu_memory_used"</span>: <span class="json-string">"1024 MB"</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ ADMIN ══════════════════════ -->
+  <div id="admin" class="section-header">
+    <span class="section-icon">👑</span>
+    <h2>Admin</h2>
+    <span class="auth-tag auth-admin">👑 Admin Only</span>
+  </div>
+  <p class="section-desc">System administration — all endpoints require a valid JWT token with role <code>admin</code>.</p>
+
+  <!-- GET /admin/stats -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/admin/stats</span>
+      <span class="endpoint-desc">System-wide statistics</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"users"</span>: { <span class="json-key">"total"</span>: <span class="json-number">25</span>, <span class="json-key">"admins"</span>: <span class="json-number">2</span>, <span class="json-key">"clients"</span>: <span class="json-number">8</span>, <span class="json-key">"regular"</span>: <span class="json-number">15</span>, <span class="json-key">"new_this_month"</span>: <span class="json-number">3</span> },
+  <span class="json-key">"activity"</span>: { <span class="json-key">"logins_today"</span>: <span class="json-number">12</span>, <span class="json-key">"logins_week"</span>: <span class="json-number">45</span> },
+  <span class="json-key">"system"</span>: { <span class="json-key">"total_cameras"</span>: <span class="json-number">10</span>, <span class="json-key">"total_alerts"</span>: <span class="json-number">1200</span>, <span class="json-key">"alerts_today"</span>: <span class="json-number">47</span> }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /admin/users -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/admin/users</span>
+      <span class="endpoint-desc">Get all users in the system</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200 — Array</h4>
+        <pre>[{
+  <span class="json-key">"id"</span>: <span class="json-string">"64f3..."</span>,
+  <span class="json-key">"username"</span>: <span class="json-string">"john_doe"</span>,
+  <span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>,
+  <span class="json-key">"role"</span>: <span class="json-string">"user"</span>,
+  <span class="json-key">"created_at"</span>: <span class="json-string">"2024-01-15T10:30:00Z"</span>,
+  <span class="json-key">"last_login"</span>: <span class="json-string">"2024-01-20T09:00:00Z"</span>,
+  <span class="json-key">"login_count"</span>: <span class="json-number">42</span>,
+  <span class="json-key">"is_active"</span>: <span class="json-bool">true</span>
+}]</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /admin/users -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/admin/users</span>
+      <span class="endpoint-desc">Create a new user from admin panel</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          <tr><td class="param-name">username</td><td class="param-type">string</td><td class="param-required">Required</td><td>Username (min 3 chars)</td></tr>
+          <tr><td class="param-name">password</td><td class="param-type">string</td><td class="param-required">Required</td><td>Password (min 6 chars)</td></tr>
+          <tr><td class="param-name">role</td><td class="param-type">string</td><td class="param-required">Required</td><td><code>user</code> | <code>client</code> | <code>admin</code></td></tr>
+          <tr><td class="param-name">email</td><td class="param-type">string</td><td class="param-optional">Optional</td><td>Email address</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /admin/users/{id}/role -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/admin/users/{user_id}/role</span>
+      <span class="endpoint-desc">Change a user's role</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <pre>{ <span class="json-key">"role"</span>: <span class="json-string">"client"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUT /admin/users/{id}/toggle-active -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-PUT">PUT</span>
+      <span class="endpoint-path">/admin/users/{user_id}/toggle-active</span>
+      <span class="endpoint-desc">Enable or disable a user account</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Toggles the <code>is_active</code> flag. No request body needed. Cannot deactivate your own account.</p>
+    </div>
+  </div>
+
+  <!-- POST /admin/users/{id}/reset-password -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-POST">POST</span>
+      <span class="endpoint-path">/admin/users/{user_id}/reset-password</span>
+      <span class="endpoint-desc">Reset a user's password</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Request Body (JSON)</h4>
+        <pre>{ <span class="json-key">"new_password"</span>: <span class="json-string">"newSecurePassword123"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE /admin/users/{id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/admin/users/{user_id}</span>
+      <span class="endpoint-desc">Delete a user account permanently</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Permanently deletes the user. Cannot delete your own account.</p>
+    </div>
+  </div>
+
+  <!-- GET /admin/storage-stats -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/admin/storage-stats</span>
+      <span class="endpoint-desc">Storage stats: count and size of snapshots and processed videos</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"snapshots"</span>: { <span class="json-key">"count"</span>: <span class="json-number">342</span>, <span class="json-key">"size_mb"</span>: <span class="json-number">128.4</span> },
+  <span class="json-key">"videos"</span>: { <span class="json-key">"count"</span>: <span class="json-number">17</span>, <span class="json-key">"size_mb"</span>: <span class="json-number">512.0</span> }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE /admin/storage/snapshots -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/admin/storage/snapshots</span>
+      <span class="endpoint-desc">Delete all stored snapshot images from disk</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">⚠️ Irreversible. Permanently removes all files in the snapshots folder.</p>
+    </div>
+  </div>
+
+  <!-- DELETE /admin/storage/videos -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/admin/storage/videos</span>
+      <span class="endpoint-desc">Delete all stored processed videos from disk</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">⚠️ Irreversible. Permanently removes all files in the processed_videos folder.</p>
+    </div>
+  </div>
+
+  <!-- GET /admin/all-cameras -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/admin/all-cameras</span>
+      <span class="endpoint-desc">Get all cameras in the system with owner data</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <p style="color:var(--muted);font-size:12px;padding-top:12px;">Returns all cameras across all users, each enriched with the owner's username and role.</p>
+    </div>
+  </div>
+
+  <!-- DELETE /admin/cameras/{camera_id} -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-DELETE">DELETE</span>
+      <span class="endpoint-path">/admin/cameras/{camera_id}</span>
+      <span class="endpoint-desc">Admin — delete any camera regardless of owner</span>
+      <span class="auth-tag auth-admin">👑 Admin Only</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Path Parameters</h4>
+        <table>
+          <tr><th>Param</th><th>Type</th><th>Required</th></tr>
+          <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td class="param-required">Required</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SYSTEM / HEALTH ══════════════════════ -->
+  <div id="system" class="section-header">
+    <span class="section-icon">💚</span>
+    <h2>System / Health</h2>
+    <span class="auth-tag auth-public">Public</span>
+  </div>
+  <p class="section-desc">Utility endpoints for uptime monitoring, system info, and default camera discovery.</p>
+
+  <!-- GET /health -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/health</span>
+      <span class="endpoint-desc">Health check — verify the server is running</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{ <span class="json-key">"status"</span>: <span class="json-string">"ok"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /info -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/info</span>
+      <span class="endpoint-desc">Get system information (version, uptime, GPU status)</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{
+  <span class="json-key">"version"</span>: <span class="json-string">"1.7"</span>,
+  <span class="json-key">"gpu_available"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"model"</span>: <span class="json-string">"best.pt"</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /default-camera -->
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET">GET</span>
+      <span class="endpoint-path">/default-camera</span>
+      <span class="endpoint-desc">Get the default/first available camera ID</span>
+      <span class="auth-tag auth-public">Public</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <h4>Response 200</h4>
+        <pre>{ <span class="json-key">"camera_id"</span>: <span class="json-string">"64f3c8a1b2d4e5f6a7b8c9d0"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ DATA MODELS ══════════════════════ -->
+  <div id="models" class="section-header">
+    <span class="section-icon">📋</span>
+    <h2>Data Models</h2>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET" style="background:rgba(108,99,255,0.2);color:var(--accent);">MODEL</span>
+      <span class="endpoint-path">Alert Object</span>
+      <span class="endpoint-desc">Full alert document structure</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="param-name">id</td><td class="param-type">string</td><td>MongoDB ObjectId (24 hex chars)</td></tr>
+        <tr><td class="param-name">camera_id</td><td class="param-type">string</td><td>ID of the camera that triggered the alert</td></tr>
+        <tr><td class="param-name">alert_type</td><td class="param-type">string</td><td>Violation type (see Alert Types list below)</td></tr>
+        <tr><td class="param-name">severity</td><td class="param-type">string</td><td><code>low</code> | <code>medium</code> | <code>high</code></td></tr>
+        <tr><td class="param-name">message</td><td class="param-type">string</td><td>Human-readable description</td></tr>
+        <tr><td class="param-name">timestamp</td><td class="param-type">string</td><td>ISO 8601 UTC timestamp (e.g. <code>2024-01-15T10:30:00.000Z</code>)</td></tr>
+        <tr><td class="param-name">snapshot_url</td><td class="param-type">string | null</td><td>Relative URL to violation image: <code>/static/snapshots/xxx.jpg</code></td></tr>
+        <tr><td class="param-name">video_url</td><td class="param-type">string | null</td><td>Relative URL to video clip (if available)</td></tr>
+        <tr><td class="param-name">detection_data</td><td class="param-type">array</td><td>Raw detection bounding box data</td></tr>
+        <tr><td class="param-name">is_group_alert</td><td class="param-type">boolean</td><td>True if multiple violators detected simultaneously</td></tr>
+        <tr><td class="param-name">violators_count</td><td class="param-type">integer</td><td>Number of individuals in violation</td></tr>
+        <tr><td class="param-name">violation_details</td><td class="param-type">array</td><td>Per-person violation details for group alerts</td></tr>
+        <tr><td class="param-name">is_browser</td><td class="param-type">boolean</td><td>True if submitted from a browser local camera</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET" style="background:rgba(108,99,255,0.2);color:var(--accent);">MODEL</span>
+      <span class="endpoint-path">Camera Object</span>
+      <span class="endpoint-desc">Camera document structure</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="param-name">id</td><td class="param-type">string</td><td>MongoDB ObjectId</td></tr>
+        <tr><td class="param-name">name</td><td class="param-type">string</td><td>Display name</td></tr>
+        <tr><td class="param-name">url</td><td class="param-type">string</td><td>Camera URL or device index (<code>0</code>, <code>1</code>, <code>rtsp://...</code>)</td></tr>
+        <tr><td class="param-name">camera_type</td><td class="param-type">string</td><td><code>droidcam</code> | <code>usb</code> | <code>rtsp</code> | <code>online</code></td></tr>
+        <tr><td class="param-name">status</td><td class="param-type">string</td><td><code>active</code> | <code>inactive</code></td></tr>
+        <tr><td class="param-name">viewers</td><td class="param-type">integer</td><td>Current active stream viewers</td></tr>
+        <tr><td class="param-name">created_at</td><td class="param-type">string</td><td>ISO 8601 creation timestamp</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET" style="background:rgba(108,99,255,0.2);color:var(--accent);">MODEL</span>
+      <span class="endpoint-path">User Object</span>
+      <span class="endpoint-desc">User document structure</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="param-name">id</td><td class="param-type">string</td><td>MongoDB ObjectId</td></tr>
+        <tr><td class="param-name">username</td><td class="param-type">string</td><td>Unique username</td></tr>
+        <tr><td class="param-name">email</td><td class="param-type">string</td><td>Email address (optional)</td></tr>
+        <tr><td class="param-name">role</td><td class="param-type">string</td><td><code>user</code> | <code>client</code> | <code>admin</code></td></tr>
+        <tr><td class="param-name">created_at</td><td class="param-type">string</td><td>ISO 8601 creation timestamp</td></tr>
+        <tr><td class="param-name">last_login</td><td class="param-type">string | null</td><td>Last login timestamp</td></tr>
+        <tr><td class="param-name">login_count</td><td class="param-type">integer</td><td>Total login count</td></tr>
+        <tr><td class="param-name">is_active</td><td class="param-type">boolean</td><td>Account enabled/disabled</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ ALERT TYPES ══════════════════════ -->
+  <div id="alert-types" class="section-header">
+    <span class="section-icon">🏷️</span>
+    <h2>Alert Types Reference</h2>
+  </div>
+
+  <p class="section-desc">All detection violation types used across the system. Use these exact strings in filters, settings, and requests.</p>
+
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET" style="background:rgba(108,99,255,0.2);color:var(--accent);">REF</span>
+      <span class="endpoint-path">Detection / Alert Types</span>
+      <span class="endpoint-desc">All valid alert_type and detection filter values</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <div class="body-section">
+        <table>
+          <tr><th>Value (String)</th><th>Severity</th><th>Description</th></tr>
+          <tr><td class="param-name">no_helmet</td><td style="color:var(--red)">high</td><td>Worker not wearing a safety helmet</td></tr>
+          <tr><td class="param-name">no_vest</td><td style="color:var(--orange)">medium</td><td>Worker not wearing a safety vest</td></tr>
+          <tr><td class="param-name">mobile_phone</td><td style="color:var(--orange)">medium</td><td>Worker using a mobile phone on-site</td></tr>
+          <tr><td class="param-name">smoking</td><td style="color:var(--orange)">medium</td><td>Smoking detected in a restricted area</td></tr>
+          <tr><td class="param-name">person_fallen</td><td style="color:var(--red)">high</td><td>Person fall/collapse detected (emergency)</td></tr>
+          <tr><td class="param-name">no_fire_extinguisher</td><td style="color:var(--red)">high</td><td>Required fire extinguisher absent in view</td></tr>
+          <tr><td class="param-name">camera_blocked</td><td style="color:var(--orange)">medium</td><td>Camera view obstructed/covered</td></tr>
+          <tr><td class="param-name">restricted_zone</td><td style="color:var(--red)">high</td><td>Person entered a restricted/no-access zone</td></tr>
+        </table>
+      </div>
+      <div class="body-section" style="margin-top:12px;">
+        <h4>All values as array</h4>
+        <div class="chips">
+          <span class="chip">no_helmet</span>
+          <span class="chip">no_vest</span>
+          <span class="chip">mobile_phone</span>
+          <span class="chip">smoking</span>
+          <span class="chip">person_fallen</span>
+          <span class="chip">no_fire_extinguisher</span>
+          <span class="chip">camera_blocked</span>
+          <span class="chip">restricted_zone</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ ERROR CODES ══════════════════════ -->
+  <hr />
+  <div class="endpoint">
+    <div class="endpoint-header" onclick="toggle(this)">
+      <span class="method method-GET" style="background:rgba(255,92,92,0.15);color:var(--red);">ERR</span>
+      <span class="endpoint-path">HTTP Error Codes</span>
+      <span class="endpoint-desc">Standard error responses</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="endpoint-body">
+      <table>
+        <tr><th>Code</th><th>Meaning</th><th>Common Cause</th></tr>
+        <tr><td><span class="status-200">200</span></td><td>OK</td><td>Request successful</td></tr>
+        <tr><td><span class="status-400">400</span></td><td>Bad Request</td><td>Invalid ID format, missing fields, validation error</td></tr>
+        <tr><td><span class="status-401">401</span></td><td>Unauthorized</td><td>Missing or invalid JWT token</td></tr>
+        <tr><td><span class="status-400" style="color:var(--orange)">403</span></td><td>Forbidden</td><td>Not an admin trying to access admin route</td></tr>
+        <tr><td><span class="status-400" style="color:var(--muted)">404</span></td><td>Not Found</td><td>Camera / alert / user does not exist</td></tr>
+        <tr><td><span class="status-400" style="color:var(--red)">500</span></td><td>Server Error</td><td>Internal error or database issue</td></tr>
+        <tr><td><span class="status-400" style="color:var(--red)">503</span></td><td>Service Unavailable</td><td>MongoDB not connected or camera failed to start</td></tr>
+      </table>
+      <div class="body-section">
+        <h4>Error Response Format</h4>
+        <pre>{ <span class="json-key">"detail"</span>: <span class="json-string">"Error message here"</span> }</pre>
+      </div>
+    </div>
+  </div>
+
+  <br /><br />
+
+</main>
+</div><!-- end layout -->
+
+<script>
+  // Toggle accordion
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const chevron = header.querySelector('.chevron');
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+  }
+
+  // Copy base URL
+  function copyBase() {
+    const text = document.getElementById('baseUrlDisplay').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  }
+
+  // Sidebar highlight on scroll
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Search filter
+  document.getElementById('searchInput').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.endpoint').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Open all expanded: none by default (collapsed). Let user click.
+</script>
+</body>
+</html>

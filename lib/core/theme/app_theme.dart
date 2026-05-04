@@ -19,6 +19,9 @@ class AppTheme {
   static const Color statusWarning = Color(0xFFF0B000);
   static const Color statusError = Color(0xFFE53E3E);
   
+  // Surface Colors
+  static const Color surfaceColor = secondaryDark;
+  
   // Background Gradient
   static const List<Color> backgroundGradient = [
     primaryDark,

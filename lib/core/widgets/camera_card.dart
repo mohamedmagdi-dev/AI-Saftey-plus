@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'glass_container.dart';
 import 'status_indicator.dart';
 
@@ -39,10 +40,16 @@ class CameraCard extends StatelessWidget {
               child: thumbnailUrl != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        thumbnailUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
+                      child: CachedNetworkImage(
+                        imageUrl: thumbnailUrl!,
+                        fit: BoxFit.fill,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white54,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) =>
                             const Icon(Icons.videocam, color: Colors.white54),
                       ),
                     )
