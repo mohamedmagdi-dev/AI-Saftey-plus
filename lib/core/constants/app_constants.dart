@@ -6,7 +6,7 @@ class AppConstants {
 
   /// Public API (FastAPI) — no trailing slash.
   static const String apiBaseUrl =
-      'https://fly-nova-plaintiff-messages.trycloudflare.com';
+      'https://brooklyn-computing-tour-clinics.trycloudflare.com';
 
   // String constants
   static const String appName = 'AI Safety+';
