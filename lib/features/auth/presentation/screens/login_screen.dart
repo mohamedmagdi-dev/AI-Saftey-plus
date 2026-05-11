@@ -165,8 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   children: [
                                     // Email Field
                                     CustomTextField(
-                                      label: 'Email',
-                                      hintText: 'your@email.com',
+                                      label: 'Username',
+                                      hintText: 'username',
                                       controller: _emailController,
                                       keyboardType: TextInputType.emailAddress,
                                       // validator: (value) {

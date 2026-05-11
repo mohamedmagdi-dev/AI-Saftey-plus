@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => getIt<ReportsCubit>()),
       ],
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         title: 'AI Safety+',
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

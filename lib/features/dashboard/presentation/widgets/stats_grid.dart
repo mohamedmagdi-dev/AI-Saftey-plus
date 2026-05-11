@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/navigation_helper.dart';
 import '../../../../core/widgets/stat_card.dart';
 import '../../../../core/theme/app_theme.dart';
 
@@ -40,6 +41,7 @@ class StatsGrid extends StatelessWidget {
           iconColor: AppTheme.accentCyan,
           onTap: () {
             // Navigate to cameras screen
+            NavigationHelper.navigateToCameras(context);
           },
         ),
         StatCard(
@@ -50,6 +52,7 @@ class StatsGrid extends StatelessWidget {
           iconColor: AppTheme.statusWarning,
           onTap: () {
             // Navigate to alerts screen
+            //NavigationHelper.(context);
           },
         ),
         StatCard(
@@ -60,6 +63,7 @@ class StatsGrid extends StatelessWidget {
           iconColor: AppTheme.accentGold,
           onTap: () {
             // Navigate to analytics screen
+            NavigationHelper.navigateToAnalytics(context);
           },
         ),
         StatCard(
@@ -70,6 +74,7 @@ class StatsGrid extends StatelessWidget {
           iconColor: AppTheme.statusOnline,
           onTap: () {
             // Navigate to settings
+            NavigationHelper.navigateToSettings(context);
           },
         ),
       ],
