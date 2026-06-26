@@ -34,21 +34,28 @@ class AlertLoaded extends AlertState {
 class AlertHistoryLoaded extends AlertState {
   final List<AlertEntity> alerts;
   final String? filter;
+  final String? highlightedAlertId;
 
-  const AlertHistoryLoaded({required this.alerts, this.filter});
+  const AlertHistoryLoaded({
+    required this.alerts, 
+    this.filter,
+    this.highlightedAlertId,
+  });
 
   AlertHistoryLoaded copyWith({
     List<AlertEntity>? alerts,
     String? filter,
+    String? highlightedAlertId,
   }) {
     return AlertHistoryLoaded(
       alerts: alerts ?? this.alerts,
       filter: filter ?? this.filter,
+      highlightedAlertId: highlightedAlertId ?? this.highlightedAlertId,
     );
   }
 
   @override
-  List<Object?> get props => [alerts, filter];
+  List<Object?> get props => [alerts, filter, highlightedAlertId];
 }
 
 class AlertError extends AlertState {
@@ -58,4 +65,14 @@ class AlertError extends AlertState {
 
   @override
   List<Object?> get props => [message];
+}
+
+class AlertPollingState extends AlertState {
+  final bool isPolling;
+  final List<AlertEntity> newAlerts;
+
+  const AlertPollingState({required this.isPolling, this.newAlerts = const []});
+
+  @override
+  List<Object?> get props => [isPolling, newAlerts];
 }

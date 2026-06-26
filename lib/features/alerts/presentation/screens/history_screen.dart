@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/widgets/glass_container.dart';
 import '../../../../core/widgets/glass_bottom_nav.dart';
 import '../../../../core/widgets/alert_tile.dart';
@@ -23,19 +24,42 @@ class _HistoryScreenState extends State<HistoryScreen> {
   String _selectedFilter = 'All';
   final List<String> _filters = ['All', 'Today', 'Week', 'Month'];
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  String? _highlightedAlertId;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<AlertCubit>().fetchAlertHistory();
+      
+      // Get alertId from route query parameters
+      final alertId = GoRouterState.of(context).uri.queryParameters['alertId'];
+      
+      // Start listening to alerts
+      context.read<AlertCubit>().listenToAlerts(intervalSeconds: 30);
+      
+      // Fetch alert history
+      if (alertId != null) {
+        context.read<AlertCubit>().fetchAlertHistory(highlightedId: alertId);
+        _highlightedAlertId = alertId;
+        // Delay dialog opening until after the list is built
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _scrollToAlert(alertId);
+            _openAlertDetailDialog(alertId);
+          }
+        });
+      } else {
+        context.read<AlertCubit>().fetchAlertHistory();
+      }
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -267,7 +291,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     if (alertState is AlertLoading) {
       return ListView.builder(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-        itemCount: 5, // Show 5 shimmer items
+        itemCount: 6, // Show 5 shimmer items
         itemBuilder: (context, index) {
           return const AlertTileShimmer();
         },
@@ -358,6 +382,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
 
     return ListView.builder(
+      controller: _scrollController,
       padding: EdgeInsets.fromLTRB(
         horizontalPadding,
         16,
@@ -367,23 +392,42 @@ class _HistoryScreenState extends State<HistoryScreen> {
       itemCount: alerts.length,
       itemBuilder: (context, index) {
         final alert = alerts[index];
+        final isHighlighted = _highlightedAlertId == alert.id;
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: AlertTile(
-            title: alert.title,
-            description: alert.description,
-            timestamp: alert.timestamp,
-            severity: _mapAlertSeverityToStatusType(alert.severity),
-            onTap: () {
-              showAlertDetailDialog(
-                context: context,
-                title: alert.title,
-                description: alert.description,
-                imageUrl: alert.imageUrl,
-                timestamp: alert.timestamp,
-                severity: alert.severity.name,
-              );
-            },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              border: isHighlighted
+                  ? Border.all(color: AppTheme.accentCyan, width: 2)
+                  : null,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: isHighlighted
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.accentCyan.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: AlertTile(
+              title: alert.title,
+              description: alert.description,
+              timestamp: alert.timestamp,
+              severity: _mapAlertSeverityToStatusType(alert.severity),
+              onTap: () {
+                showAlertDetailDialog(
+                  context: context,
+                  title: alert.title,
+                  description: alert.description,
+                  imageUrl: alert.imageUrl,
+                  timestamp: alert.timestamp,
+                  severity: alert.severity.name,
+                );
+              },
+            ),
           ),
         );
       },
@@ -420,6 +464,53 @@ class _HistoryScreenState extends State<HistoryScreen> {
       case 4:
         NavigationHelper.navigateToProfile(context);
         break;
+    }
+  }
+
+  void _scrollToAlert(String alertId) {
+    // Find the alert in the current state
+    final alertState = context.read<AlertCubit>().state;
+    if (alertState is AlertHistoryLoaded) {
+      final index = alertState.alerts.indexWhere((alert) => alert.id == alertId);
+      if (index != -1 && _scrollController.hasClients) {
+        // Scroll to the alert with some offset for visibility
+        _scrollController.animateTo(
+          index * 120.0, // Approximate height of each alert item
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+        
+        // Remove highlight after 3 seconds
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _highlightedAlertId = null;
+            });
+          }
+        });
+      }
+    }
+  }
+
+  void _openAlertDetailDialog(String alertId) async {
+    // Get the alert from the current state
+    final alertState = context.read<AlertCubit>().state;
+    if (alertState is AlertHistoryLoaded) {
+      final alert = alertState.alerts.firstWhere(
+        (a) => a.id == alertId,
+        orElse: () => alertState.alerts.first,
+      );
+      
+      if (mounted) {
+        showAlertDetailDialog(
+          context: context,
+          title: alert.title,
+          description: alert.description,
+          imageUrl: alert.imageUrl,
+          timestamp: alert.timestamp,
+          severity: alert.severity.name,
+        );
+      }
     }
   }
 }

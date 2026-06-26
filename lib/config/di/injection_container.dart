@@ -8,6 +8,8 @@ import '../../features/alerts/data/datasources/remote_alert_data_source.dart';
 import '../../features/alerts/data/repositories/alert_repository_impl.dart';
 import '../../features/alerts/domain/repositories/alert_repository.dart';
 import '../../features/alerts/domain/usecases/get_alert_history_usecase.dart';
+import '../../features/alerts/domain/usecases/listen_to_alerts_usecase.dart';
+import '../../features/alerts/domain/usecases/get_alert_by_id_usecase.dart';
 import '../../features/alerts/domain/usecases/send_notification_usecase.dart';
 import '../../features/alerts/presentation/cubit/alert_cubit.dart';
 import '../../features/auth/data/datasources/remote_auth_data_source.dart';
@@ -80,6 +82,8 @@ Future<void> setupDependencyInjection() async {
   getIt.registerLazySingleton<GetCameraSnapshotUseCase>(() => GetCameraSnapshotUseCase(getIt()));
   
   getIt.registerLazySingleton<GetAlertHistoryUseCase>(() => GetAlertHistoryUseCase(getIt()));
+  getIt.registerLazySingleton<ListenToAlertsUseCase>(() => ListenToAlertsUseCase(getIt()));
+  getIt.registerLazySingleton<GetAlertByIdUseCase>(() => GetAlertByIdUseCase(getIt()));
   getIt.registerLazySingleton<SendNotificationUseCase>(() => SendNotificationUseCase(getIt<NotificationService>()));
 
   // Register Cubits
@@ -99,6 +103,8 @@ Future<void> setupDependencyInjection() async {
   getIt.registerFactory<AlertCubit>(() => AlertCubit(
     alertRepository: getIt(),
     getAlertHistoryUseCase: getIt(),
+    listenToAlertsUseCase: getIt(),
+    getAlertByIdUseCase: getIt(),
     sendNotificationUseCase: getIt(),
   ));
   getIt.registerFactory<ReportsCubit>(() => ReportsCubit(repository: getIt()));

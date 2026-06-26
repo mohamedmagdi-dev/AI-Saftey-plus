@@ -16,6 +16,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
+  Function(String alertId)? _onNotificationTapCallback;
 
   /// Initialize the notification service
   Future<void> initialize() async {
@@ -28,16 +29,16 @@ class NotificationService {
     // iOS initialization settings
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
 
     const InitializationSettings initializationSettings =
         InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
@@ -47,12 +48,24 @@ class NotificationService {
     _isInitialized = true;
   }
 
+  /// Set callback for notification tap
+  void setNotificationCallback(Function(String alertId) callback) {
+    _onNotificationTapCallback = callback;
+  }
+
   /// Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
+    final payload = response.payload;
     if (kDebugMode) {
-      print('Notification tapped: ${response.payload}');
+      print('Notification tapped: $payload');
     }
-    // TODO: Navigate to appropriate screen based on payload
+
+    if (payload != null && payload.startsWith('alert_')) {
+      final alertId = payload.replaceFirst('alert_', '').split('|').first;
+      if (_onNotificationTapCallback != null) {
+        _onNotificationTapCallback!(alertId);
+      }
+    }
   }
 
   /// Show local notification
@@ -68,22 +81,23 @@ class NotificationService {
 
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
-      'ai_safety_alerts',
-      'AI Safety Alerts',
-      channelDescription: 'High priority security alerts',
-      importance: Importance.high,
-      priority: Priority.high,
-      color: Color(0xFF06B6D4),
-      enableLights: true,
-      ledColor: Color(0xFF06B6D4),
-    );
+          'ai_safety_alerts',
+          'AI Safety Alerts',
+          channelDescription: 'High priority security alerts',
+          importance: Importance.high,
+          priority: Priority.high,
+          color: Color(0xFF06B6D4),
+          enableLights: true,
+          ledColor: Color(0xFF06B6D4),
+          styleInformation: BigTextStyleInformation(''),
+        );
 
     const DarwinNotificationDetails iOSPlatformChannelSpecifics =
         DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        );
 
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
@@ -153,11 +167,13 @@ class NotificationService {
     required String title,
     required String description,
     required String priority,
-    String? imageUrl,
+    String? cameraId,
     String? recipientId,
+    String? imageUrl,
   }) async {
     // Only process high priority alerts
-    if (priority.toLowerCase() != 'high' && priority.toLowerCase() != 'critical') {
+    if (priority.toLowerCase() != 'high' &&
+        priority.toLowerCase() != 'critical') {
       return;
     }
 
@@ -174,9 +190,9 @@ class NotificationService {
       // Show local notification
       await showLocalNotification(
         id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-        title: '🚨 $priority.toUpperCase() Alert',
+        title: '🚨 ${priority.toUpperCase()} Alert',
         body: title,
-        payload: 'alert_$alertId',
+        payload: 'alert_$alertId|${cameraId ?? ""}',
       );
     } catch (e) {
       if (kDebugMode) {
@@ -185,9 +201,9 @@ class NotificationService {
       // Fallback: show local notification even if API fails
       await showLocalNotification(
         id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-        title: '🚨 $priority.toUpperCase() Alert',
+        title: '🚨 ${priority.toUpperCase()} Alert',
         body: title,
-        payload: 'alert_$alertId',
+        payload: 'alert_$alertId|${cameraId ?? ""}',
       );
     }
   }
@@ -200,12 +216,9 @@ class NotificationService {
 
     final result = await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
 
     return result ?? true;
   }
@@ -218,11 +231,6 @@ class NotificationService {
   /// Cancel all notifications
   Future<void> cancelAllNotifications() async {
     await _flutterLocalNotificationsPlugin.cancelAll();
-  }
-
-  /// Get pending notifications
-  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
   }
 }
 

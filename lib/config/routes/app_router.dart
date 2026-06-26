@@ -61,7 +61,10 @@ class AppRouter {
       GoRoute(
         path: '/history',
         name: 'history',
-        builder: (context, state) => const HistoryScreen(),
+        builder: (context, state) {
+          final alertId = state.uri.queryParameters['alertId'];
+          return HistoryScreen();
+        },
       ),
       GoRoute(
         path: '/profile',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'config/di/injection_container.dart';
 import 'config/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -17,6 +18,12 @@ void main() async {
   // Initialize notification service
   await NotificationService().initialize();
   await NotificationService().requestPermissions();
+  
+  // Set up notification tap callback
+  NotificationService().setNotificationCallback((String alertId) {
+    // Navigate to history screen with alertId
+    AppRouter.router.push('/history?alertId=$alertId');
+  });
   
   runApp(const MyApp());
 }
